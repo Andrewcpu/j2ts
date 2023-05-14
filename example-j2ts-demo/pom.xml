@@ -29,9 +29,9 @@
                 <inherited>true</inherited>
                 <executions>
                     <execution>
-                        <phase>process-classes</phase> <!-- you can adjust this according to when you want your plugin to run -->
+                        <phase>process-classes</phase>
                         <goals>
-                            <goal>scan</goal> <!-- this should be the name of your plugin's goal -->
+                            <goal>scan</goal>
                         </goals>
                     </execution>
                 </executions>
