@@ -1,0 +1,59 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'zulu'
+
+      - name: Build with Maven
+        run: mvn clean package -Dmaven.test.skip
+
+      - name: Read version from POM file
+        id: version
+        run: echo ::set-output name=version::$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+
+      - name: Create new tag
+        id: makeatag
+        run: git tag v${{github.run_number}}
+
+      - name: Push new tag
+        run: git push origin v${{github.run_number}} # I was a fool.
+
+      - name: Create Release
+        if: always()
+        id: create_release
+        uses: actions/create-release@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{github.run_number}} # Defeated by logic I stand.
+          release_name: "Release v${{ steps.version.outputs.version }} Build ${{ github.run_number }}"
+          draft: false
+          prerelease: false
+
+      - name: Upload artifact to release
+        if: always()
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: /home/runner/work/elevenlabs-api/elevenlabs-api/target/elevenlabs-api-${{ steps.version.outputs.version }}-full.jar
+          asset_name: elevenlabs-api-${{ steps.version.outputs.version }}-full.jar
+          asset_content_type: application/java-archive
