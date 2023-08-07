@@ -17,6 +17,22 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
+
+    <scm>
+        <connection>scm:git:https://github.com/AndrewCPU/j2ts.git</connection>
+        <developerConnection>scm:git:git@github.com:AndrewCPU/j2ts.git</developerConnection>
+        <url>https://github.com/AndrewCPU/j2ts</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub AndrewCPU Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/AndrewCPU/j2ts</url>
+        </repository>
+    </distributionManagement>
+
     <build>
         <plugins>
             <plugin>
