@@ -26,9 +26,9 @@
 
     <distributionManagement>
         <repository>
-            <id>github</id>
+            <id>github_key</id>
             <name>GitHub AndrewCPU Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/AndrewCPU/j2ts</url>
+            <url>https://maven.pkg.github.com/AndrewCPU/j2ts.git</url>
         </repository>
     </distributionManagement>
 
