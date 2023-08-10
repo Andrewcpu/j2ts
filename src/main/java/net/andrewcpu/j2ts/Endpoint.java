@@ -1,6 +1,7 @@
 package net.andrewcpu.j2ts;
 
 import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 import java.util.List;
 
 public class Endpoint {
@@ -13,11 +14,13 @@ public class Endpoint {
     private List<Parameter> headerParameters;
     private String endpointDescription;
     private Class<?> returnType;
+    private Type genericReturnType;
     private final String returnDescription;
 
-    public Endpoint(String path, String endpointDescription, String requestType, Parameter body, List<Parameter> queryParameters, List<Parameter> pathParameters, List<Parameter> headerVariables, String methodName, Class<?> returnType, String returnDescription) {
+    public Endpoint(String path, String endpointDescription, String requestType, Parameter body, List<Parameter> queryParameters, List<Parameter> pathParameters, List<Parameter> headerVariables, String methodName, Class<?> returnType, Type genericReturnType, String returnDescription) {
         this.path = path;
         this.endpointDescription = endpointDescription;
+        this.genericReturnType = genericReturnType;
         this.body = body;
         this.queryParameters = queryParameters;
         this.pathParameters = pathParameters;
@@ -26,6 +29,10 @@ public class Endpoint {
         this.requestType = requestType;
         this.returnType = returnType;
         this.returnDescription = returnDescription;
+    }
+
+    public Type getGenericReturnType() {
+        return genericReturnType;
     }
 
     public String getReturnDescription() {

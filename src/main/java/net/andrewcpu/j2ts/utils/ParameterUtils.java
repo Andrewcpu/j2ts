@@ -7,62 +7,84 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static net.andrewcpu.j2ts.JTSTransformer.MODEL_IMPORT_NAME;
 import static net.andrewcpu.j2ts.JTSTransformer.PREFIX;
 
 
 public class ParameterUtils {
-    public static String getTypeString(Parameter parameter, Set<Class<?>> types) {
-        String typeString = getTypeString(parameter.getType(), types);
-        if(parameter.isAnnotationPresent(NullableField.class)) {
-            return typeString + " | null" ;
+    public static String getTypeString(Parameter parameter, Type type, Set<Class<?>> types) {
+        String typeString = getTypeString(parameter.getType(), type, types);
+        if (parameter.isAnnotationPresent(NullableField.class)) {
+            return typeString + " | null";
         }
         return typeString;
     }
-    public static String getTypeString(Class<?> paramType, Set<Class<?>> types) {
+
+    public static String getTypeString(Class<?> paramType, Type type, Set<Class<?>> types) {
+        if (paramType == null) return "void";
+
         String value;
-        if(paramType == null) value =  "void";
-        else if(types.contains(paramType)) {
-            value = MODEL_IMPORT_NAME + "." + PREFIX + paramType.getSimpleName();
+        boolean isArrayOrList = paramType.isArray() || List.class.isAssignableFrom(paramType);
+        Class<?> componentType = paramType;
+
+        if (isArrayOrList) {
+            if (paramType.isArray()) {
+                componentType = paramType.getComponentType();
+            }
+            else if (type instanceof ParameterizedType) {
+                Type[] actualTypeArguments = ((ParameterizedType)type).getActualTypeArguments();
+                for (Type typeArg : actualTypeArguments) {
+                    componentType = (Class<?>)typeArg;
+                }
+            }
         }
-        else if(paramType == int.class || paramType == double.class || paramType == float.class || paramType == byte.class || paramType == short.class || paramType == long.class) {
+
+        if (types.contains(componentType)) {
+            value = MODEL_IMPORT_NAME + "." + PREFIX + componentType.getSimpleName();
+        } else if (componentType == int.class || componentType == double.class || componentType == float.class || componentType == byte.class || componentType == short.class || componentType == long.class) {
             value = "number";
-        }
-        else if(paramType == Integer.class || paramType == Double.class || paramType == Float.class || paramType == Byte.class || paramType == Short.class || paramType == Long.class) {
+        } else if (componentType == Integer.class || componentType == Double.class || componentType == Float.class || componentType == Byte.class || componentType == Short.class || componentType == Long.class) {
             value = "number";
-        }
-        else if(paramType == String.class) {
+        } else if (componentType == String.class) {
             value = "string";
-        }
-        else if(paramType == Boolean.class || paramType == boolean.class) {
-            value =  "boolean";
-        }
-        else if(paramType == void.class) {
+        } else if (componentType == Boolean.class || componentType == boolean.class) {
+            value = "boolean";
+        } else if (componentType == void.class) {
             value = "void";
-        }
-        else{
+        } else {
             value = "any";
         }
+
+        if (isArrayOrList) {
+            value += "[]";
+        }
+
         return value;
     }
+
     public static String getParameterName(Parameter parameter) {
-        if(parameter.isAnnotationPresent(RequestParam.class)) {
+        if (parameter.isAnnotationPresent(RequestParam.class)) {
             RequestParam requestParam = parameter.getAnnotation(RequestParam.class);
-            if(requestParam.value().length() != 0) {
+            if (requestParam.value().length() != 0) {
                 return requestParam.value();
             }
         }
-        if(parameter.isAnnotationPresent(PathVariable.class)){
+        if (parameter.isAnnotationPresent(PathVariable.class)) {
             PathVariable pathVariable = parameter.getAnnotation(PathVariable.class);
-            if(pathVariable.value().length() != 0) {
+            if (pathVariable.value().length() != 0) {
                 return pathVariable.value();
             }
         }
-        if(parameter.isAnnotationPresent(RequestHeader.class)) {
+        if (parameter.isAnnotationPresent(RequestHeader.class)) {
             RequestHeader header = parameter.getAnnotation(RequestHeader.class);
-            if(header.value().length() != 0) {
+            if (header.value().length() != 0) {
                 return header.value();
             }
         }

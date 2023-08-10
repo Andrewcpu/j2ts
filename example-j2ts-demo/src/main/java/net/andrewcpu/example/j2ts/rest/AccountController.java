@@ -7,6 +7,7 @@ import net.andrewcpu.j2ts.annotations.ReturnDescription;
 import org.springframework.web.bind.annotation.*;
 
 import javax.ws.rs.PathParam;
+import java.util.List;
 
 @RestController
 public class AccountController {
@@ -16,6 +17,13 @@ public class AccountController {
     @ReturnDescription("The requested user model.")
     public User getUserById(@PathVariable("userId") @ParamDescription("UserID to search")
                                 String userId, @RequestParam("q") @ParamDescription("Query parameter") String query) {
+        return null;
+    }
+
+    @API("Get a list of users")
+    @GetMapping("/users")
+    @ReturnDescription("A list of users")
+    public List<User> getUsers() {
         return null;
     }
 

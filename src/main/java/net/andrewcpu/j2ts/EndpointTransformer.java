@@ -37,7 +37,7 @@ public class EndpointTransformer {
         if(method.isAnnotationPresent(ReturnDescription.class)) {
             returnDescription = method.getAnnotation(ReturnDescription.class).value();
         }
-        return new Endpoint(endpoint, method.getAnnotation(API.class).value(), requestType, body, queryVariables, pathVariables, headerVariables, methodName, method.getReturnType(), returnDescription);
+        return new Endpoint(endpoint, method.getAnnotation(API.class).value(), requestType, body, queryVariables, pathVariables, headerVariables, methodName, method.getReturnType(), method.getGenericReturnType(), returnDescription);
     }
 
     public static String getRequestPath(Method method) {
@@ -101,7 +101,7 @@ public class EndpointTransformer {
                 description = descriptParam.value();
             }
             String type = "";
-            type = getTypeString(param, types);
+            type = getTypeString(param, endpoint.getGenericReturnType(), types);
             return " * @param {%s} %s%s".formatted(type, getNullableParameterName(param, types), description.length() != 0 ? " - " + description : "");
         }).collect(Collectors.joining("\n"));
 
@@ -110,22 +110,22 @@ public class EndpointTransformer {
                 paramComments + "\n" +
                 " * @returns {%s} %s\n" +
                 " */";
-        return format.formatted(endpoint.getEndpointDescription().length() != 0 ? " * " + endpoint.getEndpointDescription() + "\n * \n" : "", getTypeString(endpoint.getReturnType(), types), endpoint.getReturnDescription() );
+        return format.formatted(endpoint.getEndpointDescription().length() != 0 ? " * " + endpoint.getEndpointDescription() + "\n * \n" : "", getTypeString(endpoint.getReturnType(), endpoint.getGenericReturnType(), types), endpoint.getReturnDescription() );
     }
 
     public static String getFunctionParameterString(Endpoint endpoint, Set<Class<?>> types) {
         List<String> p = new ArrayList<>();
         for(Parameter parameter : endpoint.getPathParameters()) {
-            p.add(getNullableParameterName(parameter, types) + ": " + getTypeString(parameter, types));
+            p.add(getNullableParameterName(parameter, types) + ": " + getTypeString(parameter, endpoint.getGenericReturnType(), types));
         }
         for(Parameter parameter : endpoint.getQueryParameters()) {
-            p.add(getNullableParameterName(parameter, types) + ": " + getTypeString(parameter, types));
+            p.add(getNullableParameterName(parameter, types) + ": " + getTypeString(parameter, endpoint.getGenericReturnType(), types));
         }
         for(Parameter parameter : endpoint.getHeaderParameters()) {
-            p.add(getNullableParameterName(parameter, types) + ": " + getTypeString(parameter, types));
+            p.add(getNullableParameterName(parameter, types) + ": " + getTypeString(parameter, endpoint.getGenericReturnType(), types));
         }
         if(endpoint.getBody() != null) {
-            p.add(getNullableParameterName(endpoint.getBody(), types) + ": " + getTypeString(endpoint.getBody(), types));
+            p.add(getNullableParameterName(endpoint.getBody(), types) + ": " + getTypeString(endpoint.getBody(), endpoint.getGenericReturnType(), types));
         }
         return p.stream().collect(Collectors.joining(", "));
     }

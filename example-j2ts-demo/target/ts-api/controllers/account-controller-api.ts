@@ -1,30 +1,40 @@
 /* tslint:disable */
 /* eslint-disable */
-import * as backend from '../types'
+import * as api from '../types'
 const request = require('axios');
 
-
-/**
- * Update a user model
- * 
- * @param {backend.IUser} user - Updated user model
- * @returns {backend.IUser} The updated user model.
- */
-export function updateUser(user: backend.IUser): Promise<backend.IUser> {
-    return request.post("/user", user);
-}
 
 /**
  * Get a user from their userID
  * 
  * @param {string} userId - UserID to search
  * @param {string} q - Query parameter
- * @returns {backend.IUser} The requested user model.
+ * @returns {api.IUser} The requested user model.
  */
-export function getUserById(userId: string, q: string): Promise<backend.IUser> {
+export function getUserById(userId: string, q: string): Promise<api.IUser> {
     return request.get(`/user/${userId}`, {
       params: {
         q
       }
     });
+}
+
+/**
+ * Get a list of users
+ * 
+
+ * @returns {api.IUser[]} A list of users
+ */
+export function getUsers(): Promise<api.IUser[]> {
+    return request.get("/users");
+}
+
+/**
+ * Update a user model
+ * 
+ * @param {api.IUser} user - Updated user model
+ * @returns {api.IUser} The updated user model.
+ */
+export function updateUser(user: api.IUser): Promise<api.IUser> {
+    return request.post("/user", user);
 }

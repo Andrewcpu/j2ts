@@ -28,9 +28,9 @@ public class GenerateMojo extends AbstractMojo {
     @Parameter(property = "mainPackage", defaultValue = "", required = true)
     String mainPackage;
 
-    @Parameter(property="typePrefix", defaultValue = "I", required=false)
+    @Parameter(property="typePrefix", defaultValue = "I")
     String typePrefix;
-    @Parameter(property="moduleName", defaultValue = "api", required=false)
+    @Parameter(property="moduleName", defaultValue = "api")
     String modulePrefix;
 
     @Parameter(defaultValue = "${project}", required = true, readonly = true)

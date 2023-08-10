@@ -41,7 +41,7 @@ public class APIBuilder {
 		String format = "export function %s(%s): Promise<%s> {";
 		String name = endpoint.getMethodName();
 		String params = getFunctionParameterString(endpoint, types);
-		String returnType = getTypeString(endpoint.getReturnType(), types);
+		String returnType = getTypeString(endpoint.getReturnType(), endpoint.getGenericReturnType(), types);
 		return format.formatted(name, params, returnType);
 	}
 
