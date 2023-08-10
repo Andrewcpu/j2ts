@@ -16,8 +16,8 @@ import static net.andrewcpu.j2ts.EndpointTransformer.parseMethod;
 
 public class JTSTransformer {
 
-    public static final String PREFIX = "I";
-    public static final String MODEL_IMPORT_NAME = "backend";
+    public static String PREFIX = "I";
+    public static String MODEL_IMPORT_NAME = "backend";
 
     public static void main(String[] args) throws IOException {
 //        generateAPI("example.rest", "example.models");

@@ -27,7 +27,7 @@ This utility uses the following custom annotations:
         <plugin>
             <groupId>net.andrewcpu</groupId>
             <artifactId>j2ts</artifactId>
-            <version>1.1-SNAPSHOT</version>
+            <version>1.2-SNAPSHOT</version>
             <inherited>true</inherited>
             <executions>
                 <execution>
@@ -39,6 +39,8 @@ This utility uses the following custom annotations:
             </executions>
             <configuration>
                 <mainPackage>net.andrewcpu.example</mainPackage>
+                <typePrefix>I</typePrefix>
+                <moduleName>api</moduleName>
             </configuration>
         </plugin>
     </plugins>
@@ -49,7 +51,7 @@ This utility uses the following custom annotations:
 <dependency>
     <groupId>net.andrewcpu</groupId>
     <artifactId>j2ts</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.2-SNAPSHOT</version>
 </dependency>
 ```
 

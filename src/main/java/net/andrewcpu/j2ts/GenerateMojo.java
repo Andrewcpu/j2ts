@@ -28,10 +28,17 @@ public class GenerateMojo extends AbstractMojo {
     @Parameter(property = "mainPackage", defaultValue = "", required = true)
     String mainPackage;
 
+    @Parameter(property="typePrefix", defaultValue = "I", required=false)
+    String typePrefix;
+    @Parameter(property="moduleName", defaultValue = "api", required=false)
+    String modulePrefix;
+
     @Parameter(defaultValue = "${project}", required = true, readonly = true)
     MavenProject project;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
+        JTSTransformer.MODEL_IMPORT_NAME = modulePrefix;
+        JTSTransformer.PREFIX = typePrefix;
         try {
             List<String> classpathElements = project.getCompileClasspathElements();
             classpathElements.addAll(project.getRuntimeClasspathElements());
