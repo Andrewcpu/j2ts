@@ -33,12 +33,16 @@ public class GenerateMojo extends AbstractMojo {
     @Parameter(property="moduleName", defaultValue = "api")
     String modulePrefix;
 
+    @Parameter(property="proxyPath", defaultValue = "api/")
+    String proxyPath;
+
     @Parameter(defaultValue = "${project}", required = true, readonly = true)
     MavenProject project;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
         JTSTransformer.MODEL_IMPORT_NAME = modulePrefix;
         JTSTransformer.PREFIX = typePrefix;
+        JTSTransformer.PROXY_URL_PREFIX = proxyPath;
         try {
             List<String> classpathElements = project.getCompileClasspathElements();
             classpathElements.addAll(project.getRuntimeClasspathElements());

@@ -19,6 +19,8 @@ public class JTSTransformer {
     public static String PREFIX = "I";
     public static String MODEL_IMPORT_NAME = "backend";
 
+    public static String PROXY_URL_PREFIX = "api";
+
     public static void main(String[] args) throws IOException {
 //        generateAPI("example.rest", "example.models");
     }

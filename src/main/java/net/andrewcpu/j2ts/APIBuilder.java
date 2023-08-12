@@ -71,7 +71,28 @@ public class APIBuilder {
 				path = path.replaceAll("\\{" + name + "}", "\\$\\{" + name + "}");
 			}
 		}
-		String formattedReq = req.formatted(endpoint.getRequestType(), path, params.size() != 0 ? ", " + String.join(", ", params) : "");
+
+		String endPointPath = "/";
+		if(!PROXY_URL_PREFIX.isEmpty()) {
+			endPointPath += PROXY_URL_PREFIX.trim();
+			if(endPointPath.endsWith("/")){
+				if(path.startsWith("/")){
+					endPointPath = endPointPath.substring(0, endPointPath.length() - 1);
+				}
+			}
+			else {
+				if(!path.startsWith("/")){
+					endPointPath += "/";
+				}
+			}
+			endPointPath += path;
+		}
+		else{
+			endPointPath = path;
+		}
+
+
+		String formattedReq = req.formatted(endpoint.getRequestType(), endPointPath, params.size() != 0 ? ", " + String.join(", ", params) : "");
 		stringBuilder.append(formattedReq);
 		stringBuilder.append("\n}");
 		return stringBuilder.toString();

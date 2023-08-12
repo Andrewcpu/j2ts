@@ -13,7 +13,7 @@ const request = require('axios');
  * @returns {string} 
  */
 export function getPhoneNumber(userId: string, type: api.IPhoneType, ssoToken: string): Promise<string> {
-    return request.get(`/phone/${userId}`, ssoToken, {
+    return request.get(`/api/phone/${userId}`, ssoToken, {
       params: {
         type
       }

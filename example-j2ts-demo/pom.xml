@@ -39,6 +39,7 @@
                     <mainPackage>net.andrewcpu.example</mainPackage>
                     <typePrefix>I</typePrefix>
                     <moduleName>api</moduleName>
+                    <proxyPath>api</proxyPath>
                 </configuration>
             </plugin>
         </plugins>
