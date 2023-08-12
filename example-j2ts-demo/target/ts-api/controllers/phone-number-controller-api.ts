@@ -17,5 +17,5 @@ export function getPhoneNumber(userId: string, type: api.IPhoneType, ssoToken: s
       params: {
         type
       }
-    });
+    }).then((result: any) => result.data);
 }

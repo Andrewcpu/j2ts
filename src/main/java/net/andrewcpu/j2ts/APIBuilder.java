@@ -56,7 +56,7 @@ public class APIBuilder {
 		if (endpoint.getPathParameters().size() != 0) {
 			quoteChar = "`";
 		}
-		String req = "return request.%s(" + quoteChar + "%s" + quoteChar + "%s);";
+		String req = "return request.%s(" + quoteChar + "%s" + quoteChar + "%s).then((result: any) => result.data);";
 		List<String> params = new ArrayList<>();
 		if (endpoint.getBody() != null) {
 			params.add(getParameterName(endpoint.getBody()));

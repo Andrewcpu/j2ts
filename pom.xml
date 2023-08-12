@@ -6,7 +6,7 @@
 
     <groupId>net.andrewcpu</groupId>
     <artifactId>j2ts</artifactId>
-    <version>1.6-SNAPSHOT</version>
+    <version>1.7-SNAPSHOT</version>
     <packaging>maven-plugin</packaging>
     <name>Typescript Generation</name>
 
