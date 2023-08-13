@@ -4,6 +4,9 @@ import cz.habarta.typescript.generator.*;
 import net.andrewcpu.j2ts.annotations.Model;
 import net.andrewcpu.j2ts.annotations.NullableField;
 import net.andrewcpu.j2ts.annotations.OptionalField;
+import net.andrewcpu.j2ts.annotations.StoredKey;
+import net.andrewcpu.j2ts.model.EndpointDeclarations;
+import net.andrewcpu.j2ts.utils.ParameterUtils;
 import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
 import org.springframework.web.bind.annotation.RestController;
@@ -61,9 +64,45 @@ public class APIBuilder {
 		if (endpoint.getBody() != null) {
 			params.add(getParameterName(endpoint.getBody()));
 		}
-		if (endpoint.getQueryParameters().size() != 0) {
-			params.add("{\n" + getSpacing(3) + "params: {\n" + getSpacing(4) + endpoint.getQueryParameters().stream().map(m -> getParameterName(m)).collect(Collectors.joining(", ")) + "\n" + getSpacing(3) + "}\n" + getSpacing(2) + "}");
+		if (endpoint.getQueryParameters().size() != 0 || endpoint.getHeaderParameters().size() != 0) {
+			StringBuilder reqParams = new StringBuilder("{\n" + getSpacing(3));
+			boolean hasQueryParameters = endpoint.getQueryParameters().size() != 0;
+			boolean hasHeaderParameters = endpoint.getHeaderParameters().size() != 0;
+			if (hasQueryParameters) {
+				reqParams.append("params: {\n"
+						+ getSpacing(4)
+						+ endpoint.getQueryParameters()
+						.stream()
+						.map(ParameterUtils::getParameterName)
+						.collect(Collectors.joining(", "))
+						+ "\n"
+						+ getSpacing(3) + "}");
+			}
+			if (hasHeaderParameters) {
+				if (hasQueryParameters) {
+					reqParams.append(",\n" + getSpacing(3)); // Add a comma if there are query params
+				}
+				reqParams.append("headers: {\n"
+						+ getSpacing(4)
+						+ endpoint.getHeaderParameters()
+						.stream()
+						.map(parameter -> {
+							StoredKey storedKeyAnnotation = parameter.getAnnotation(StoredKey.class);
+							if (storedKeyAnnotation != null) {
+								String keyName = storedKeyAnnotation.value().isEmpty() ? ParameterUtils.getParameterName(parameter) : storedKeyAnnotation.value();;
+								return keyName + ": localStorage.getItem(\"" + keyName + "\")";
+							} else {
+								return ParameterUtils.getParameterName(parameter);
+							}
+						})
+						.collect(Collectors.joining(", "))
+						+ "\n"
+						+ getSpacing(3) + "}");
+			}
+			reqParams.append("\n" + getSpacing(2) + "}");
+			params.add(reqParams.toString());
 		}
+
 		String path = endpoint.getPath();
 		if (endpoint.getPathParameters().size() != 0) {
 			for (Parameter parameter : endpoint.getPathParameters()) {
@@ -73,21 +112,19 @@ public class APIBuilder {
 		}
 
 		String endPointPath = "/";
-		if(!PROXY_URL_PREFIX.isEmpty()) {
+		if (!PROXY_URL_PREFIX.isEmpty()) {
 			endPointPath += PROXY_URL_PREFIX.trim();
-			if(endPointPath.endsWith("/")){
-				if(path.startsWith("/")){
+			if (endPointPath.endsWith("/")) {
+				if (path.startsWith("/")) {
 					endPointPath = endPointPath.substring(0, endPointPath.length() - 1);
 				}
-			}
-			else {
-				if(!path.startsWith("/")){
+			} else {
+				if (!path.startsWith("/")) {
 					endPointPath += "/";
 				}
 			}
 			endPointPath += path;
-		}
-		else{
+		} else {
 			endPointPath = path;
 		}
 
@@ -98,7 +135,7 @@ public class APIBuilder {
 		return stringBuilder.toString();
 	}
 
-	public static void generateAPI(Reflections reflections, ClassLoader classLoader, String packageRoot, File directory) throws IOException {
+	public static void generateAPI(Reflections reflections, ClassLoader classLoader, String packageRoot, File directory, EndpointDeclarations endpointDeclarations) throws IOException {
 		File outputDirectory = new File(directory, "ts-api");
 		outputDirectory.mkdirs();
 		Set<Class<?>> packageClasses = reflections.getAll(Scanners.TypesAnnotated).stream()
@@ -106,7 +143,6 @@ public class APIBuilder {
 				.map(n -> {
 					try {
 						return reflections.forClass(n, classLoader);
-//                return classLoader.loadClass(n);
 					} catch (Exception e) {
 						e.printStackTrace();
 						return null;

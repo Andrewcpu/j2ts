@@ -1,5 +1,8 @@
 package net.andrewcpu.j2ts;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import net.andrewcpu.j2ts.model.EndpointDeclarations;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -39,10 +42,19 @@ public class GenerateMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project}", required = true, readonly = true)
     MavenProject project;
 
+    @Parameter
+    EndpointDeclarations endpointDeclarations;
+
+
     public void execute() throws MojoExecutionException, MojoFailureException {
         JTSTransformer.MODEL_IMPORT_NAME = modulePrefix;
         JTSTransformer.PREFIX = typePrefix;
         JTSTransformer.PROXY_URL_PREFIX = proxyPath;
+        try {
+            System.out.println(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(endpointDeclarations));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
         try {
             List<String> classpathElements = project.getCompileClasspathElements();
             classpathElements.addAll(project.getRuntimeClasspathElements());
@@ -67,7 +79,7 @@ public class GenerateMojo extends AbstractMojo {
                     ));
 
             try {
-                generateAPI(reflections, newClassLoader, mainPackage, new File(project.getBuild().getDirectory()));
+                generateAPI(reflections, newClassLoader, mainPackage, new File(project.getBuild().getDirectory()), endpointDeclarations);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

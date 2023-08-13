@@ -2,7 +2,7 @@ package net.andrewcpu.j2ts;
 
 import net.andrewcpu.j2ts.annotations.API;
 import net.andrewcpu.j2ts.annotations.ParamDescription;
-import net.andrewcpu.j2ts.annotations.ReturnDescription;
+import net.andrewcpu.j2ts.annotations.StoredKey;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.Method;
@@ -22,6 +22,7 @@ public class EndpointTransformer {
         List<Parameter> headerVariables = Arrays.stream(parameters).filter(f -> f.isAnnotationPresent(RequestHeader.class)).toList(); // Identify header parameters
         List<Parameter> queryVariables = Arrays.stream(parameters).filter(f -> f.isAnnotationPresent(RequestParam.class)).toList();
         List<Parameter> nonTagged = Arrays.stream(parameters).collect(Collectors.toList());
+
         nonTagged.removeAll(pathVariables);
         nonTagged.removeAll(queryVariables);
         nonTagged.removeAll(headerVariables);
@@ -33,11 +34,18 @@ public class EndpointTransformer {
             body = nonTagged.get(0);
         }
         String endpoint = getRequestPath(method);
-        String returnDescription = "";
-        if(method.isAnnotationPresent(ReturnDescription.class)) {
-            returnDescription = method.getAnnotation(ReturnDescription.class).value();
-        }
-        return new Endpoint(endpoint, method.getAnnotation(API.class).value(), requestType, body, queryVariables, pathVariables, headerVariables, methodName, method.getReturnType(), method.getGenericReturnType(), returnDescription);
+        API apiAnnotation = method.getAnnotation(API.class);
+        return new Endpoint(endpoint,
+                apiAnnotation.description(),
+                requestType,
+                body,
+                queryVariables,
+                pathVariables,
+                headerVariables,
+                methodName,
+                method.getReturnType(),
+                method.getGenericReturnType(),
+                apiAnnotation.returnValue());
     }
 
     public static String getRequestPath(Method method) {
@@ -122,7 +130,9 @@ public class EndpointTransformer {
             p.add(getNullableParameterName(parameter, types) + ": " + getTypeString(parameter, endpoint.getGenericReturnType(), types));
         }
         for(Parameter parameter : endpoint.getHeaderParameters()) {
-            p.add(getNullableParameterName(parameter, types) + ": " + getTypeString(parameter, endpoint.getGenericReturnType(), types));
+            if(!parameter.isAnnotationPresent(StoredKey.class)){
+                p.add(getNullableParameterName(parameter, types) + ": " + getTypeString(parameter, endpoint.getGenericReturnType(), types));
+            }
         }
         if(endpoint.getBody() != null) {
             p.add(getNullableParameterName(endpoint.getBody(), types) + ": " + getTypeString(endpoint.getBody(), endpoint.getGenericReturnType(), types));

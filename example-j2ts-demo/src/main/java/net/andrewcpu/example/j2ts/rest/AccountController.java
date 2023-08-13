@@ -3,7 +3,6 @@ package net.andrewcpu.example.j2ts.rest;
 import net.andrewcpu.example.j2ts.models.User;
 import net.andrewcpu.j2ts.annotations.API;
 import net.andrewcpu.j2ts.annotations.ParamDescription;
-import net.andrewcpu.j2ts.annotations.ReturnDescription;
 import org.springframework.web.bind.annotation.*;
 
 import javax.ws.rs.PathParam;
@@ -12,24 +11,21 @@ import java.util.List;
 @RestController
 public class AccountController {
 
-    @API("Get a user from their userID")
+    @API(description = "Get a user from their userID" , returnValue = "The requested user model")
     @GetMapping("/user/{userId}")
-    @ReturnDescription("The requested user model.")
     public User getUserById(@PathVariable("userId") @ParamDescription("UserID to search")
                                 String userId, @RequestParam("q") @ParamDescription("Query parameter") String query) {
         return null;
     }
 
-    @API("Get a list of users")
+    @API(description = "Get a list of users", returnValue = "A list of users")
     @GetMapping("/users")
-    @ReturnDescription("A list of users")
     public List<User> getUsers() {
         return null;
     }
 
-    @API("Update a user model")
+    @API(description = "Update a user model", returnValue = "The updated user model/")
     @PostMapping("/user")
-    @ReturnDescription("The updated user model.")
     public User updateUser(@RequestBody @ParamDescription("Updated user model")
                                User user) {
         return null;

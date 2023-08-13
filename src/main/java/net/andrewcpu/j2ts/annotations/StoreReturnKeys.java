@@ -7,7 +7,6 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD) // This annotation can be used on methods.
-public @interface API {
-    String description() default ""; // Add this line.
-    String returnValue() default "";
+public @interface StoreReturnKeys {
+	String[] value() default {};
 }

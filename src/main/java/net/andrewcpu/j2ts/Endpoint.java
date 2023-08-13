@@ -110,4 +110,5 @@ public class Endpoint {
     public void setBody(Parameter body) {
         this.body = body;
     }
+
 }

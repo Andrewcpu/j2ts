@@ -13,7 +13,7 @@ import javax.ws.rs.PathParam;
 @RestController
 public class PhoneNumberController {
 
-    @API("Get a user phone number by userID and type")
+    @API(description = "Get a user phone number by userID and type")
     @GetMapping("/phone/{userId}")
     public String getPhoneNumber(@PathVariable("userId") String userId,
                                  @RequestParam("type") PhoneType phoneType,
