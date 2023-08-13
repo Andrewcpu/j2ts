@@ -25,7 +25,7 @@
             <plugin>
                 <groupId>net.andrewcpu</groupId>
                 <artifactId>j2ts</artifactId>
-                <version>1.9-SNAPSHOT</version>
+                <version>1.91-SNAPSHOT</version>
                 <inherited>true</inherited>
                 <executions>
                     <execution>
@@ -103,7 +103,13 @@
         <dependency>
             <groupId>net.andrewcpu</groupId>
             <artifactId>j2ts</artifactId>
-            <version>1.9-SNAPSHOT</version>
+            <version>1.91-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>net.andrewcpu</groupId>
+            <artifactId>j2ts</artifactId>
+            <version>1.91-SNAPSHOT</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

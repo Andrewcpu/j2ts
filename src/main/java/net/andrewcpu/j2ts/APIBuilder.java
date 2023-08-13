@@ -64,15 +64,14 @@ public class APIBuilder {
 		//
 		// Generate the logic to store fields in localStorage
 		StringBuilder storeLogic = new StringBuilder();
-		storeLogic.append(".then((result: " + returnType + ") => {\n");
-		storeKeys.forEach(key -> storeLogic.append(getSpacing(3) + "localStorage.setItem(\"" + key + "\", result." + key + ");\n"));
-		storeLogic.append(getSpacing(3) + "return result;\n" + getSpacing(2) + "})");
+		storeLogic.append("\n" + getSpacing(3) + ".then((result: " + returnType + ") => {\n");
+		storeKeys.forEach(key -> storeLogic.append(getSpacing(4) + "localStorage.setItem(\"" + key + "\", result." + key + ");\n"));
+		storeLogic.append(getSpacing(4) + "return result;\n" + getSpacing(3) + "})");
 
 
 		String req = "return request.%s(" + quoteChar + "%s" + quoteChar + "%s)"
-				+ ".then((result: any) => result.data)";
+				+ ".then((result: any) => result.data as " + returnType + ")";
 		if (storeKeys.size() > 0) {
-			System.out.println("??!");
 			req += storeLogic.toString() + ";";
 		} else {
 			req += ";";
@@ -107,7 +106,6 @@ public class APIBuilder {
 							StoredKey storedKeyAnnotation = parameter.getAnnotation(StoredKey.class);
 							if (storedKeyAnnotation != null) {
 								String keyName = storedKeyAnnotation.value().isEmpty() ? ParameterUtils.getParameterName(parameter) : storedKeyAnnotation.value();
-								;
 								return keyName + ": localStorage.getItem(\"" + keyName + "\")";
 							} else {
 								return ParameterUtils.getParameterName(parameter);
