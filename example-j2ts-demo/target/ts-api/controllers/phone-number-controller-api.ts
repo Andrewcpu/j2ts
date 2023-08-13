@@ -2,6 +2,7 @@
 /* eslint-disable */
 import * as api from '../types'
 const request = require('axios');
+const emptyString = "";
 
 
 /**

@@ -2,25 +2,8 @@
 /* eslint-disable */
 import * as api from '../types'
 const request = require('axios');
+const emptyString = "";
 
-
-/**
- * Test API endpoint
- * 
- * @param {string} token
- * @returns {api.IUser} XYX
- */
-export function doTest(): Promise<api.IUser> {
-    return request.get("/api/test", {
-      headers: {
-        token: localStorage.getItem("token")
-      }
-    }).then((result: any) => result.data as api.IUser)
-      .then((result: api.IUser) => {
-        localStorage.setItem("email", result.email);
-        return result;
-      });
-}
 
 /**
  * Test API endpoint
@@ -36,7 +19,25 @@ export function doPostTest(user: api.IUser): Promise<api.IUser> {
       }
     }).then((result: any) => result.data as api.IUser)
       .then((result: api.IUser) => {
-        localStorage.setItem("email", result.email);
+        localStorage.setItem("email", result.email ?? emptyString);
+        return result;
+      });
+}
+
+/**
+ * Test API endpoint
+ * 
+ * @param {string} token
+ * @returns {api.IUser} XYX
+ */
+export function doTest(): Promise<api.IUser> {
+    return request.get("/api/test", {
+      headers: {
+        token: localStorage.getItem("token")
+      }
+    }).then((result: any) => result.data as api.IUser)
+      .then((result: api.IUser) => {
+        localStorage.setItem("email", result.email ?? emptyString);
         return result;
       });
 }

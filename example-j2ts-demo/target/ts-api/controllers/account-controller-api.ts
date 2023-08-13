@@ -2,16 +2,17 @@
 /* eslint-disable */
 import * as api from '../types'
 const request = require('axios');
+const emptyString = "";
 
 
 /**
- * Get a list of users
+ * Update a user model
  * 
-
- * @returns {api.IUser[]} A list of users
+ * @param {api.IUser} user - Updated user model
+ * @returns {api.IUser} The updated user model/
  */
-export function getUsers(): Promise<api.IUser[]> {
-    return request.get("/api/users").then((result: any) => result.data as api.IUser[]);
+export function updateUser(user: api.IUser): Promise<api.IUser> {
+    return request.post("/api/user", user).then((result: any) => result.data as api.IUser);
 }
 
 /**
@@ -28,17 +29,17 @@ export function getUserById(userId: string, q: string): Promise<api.IUser> {
       }
     }).then((result: any) => result.data as api.IUser)
       .then((result: api.IUser) => {
-        localStorage.setItem("userId", result.userId);
+        localStorage.setItem("userId", result.userId ?? emptyString);
         return result;
       });
 }
 
 /**
- * Update a user model
+ * Get a list of users
  * 
- * @param {api.IUser} user - Updated user model
- * @returns {api.IUser} The updated user model/
+
+ * @returns {api.IUser[]} A list of users
  */
-export function updateUser(user: api.IUser): Promise<api.IUser> {
-    return request.post("/api/user", user).then((result: any) => result.data as api.IUser);
+export function getUsers(): Promise<api.IUser[]> {
+    return request.get("/api/users").then((result: any) => result.data as api.IUser[]);
 }

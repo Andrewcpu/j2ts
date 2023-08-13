@@ -35,7 +35,7 @@ public class APIBuilder {
 		String functions = endpoints.stream().map(i -> convertEndpointToFunction(i, classes)).collect(Collectors.joining("\n\n"));
 
 		String output = "/* tslint:disable */\n" +
-				"/* eslint-disable */\nimport * as " + MODEL_IMPORT_NAME + " from '../types'\nconst request = require('axios');\n\n";
+				"/* eslint-disable */\nimport * as " + MODEL_IMPORT_NAME + " from '../types'\nconst request = require('axios');\nconst emptyString = \"\";\n\n";
 		output += "\n" + functions;
 		return output;
 	}
@@ -65,7 +65,7 @@ public class APIBuilder {
 		// Generate the logic to store fields in localStorage
 		StringBuilder storeLogic = new StringBuilder();
 		storeLogic.append("\n" + getSpacing(3) + ".then((result: " + returnType + ") => {\n");
-		storeKeys.forEach(key -> storeLogic.append(getSpacing(4) + "localStorage.setItem(\"" + key + "\", result." + key + ");\n"));
+		storeKeys.forEach(key -> storeLogic.append(getSpacing(4) + "localStorage.setItem(\"" + key + "\", result." + key + " ?? emptyString);\n"));
 		storeLogic.append(getSpacing(4) + "return result;\n" + getSpacing(3) + "})");
 
 
