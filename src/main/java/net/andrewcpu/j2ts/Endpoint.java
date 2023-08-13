@@ -16,8 +16,9 @@ public class Endpoint {
     private Class<?> returnType;
     private Type genericReturnType;
     private final String returnDescription;
+    private List<String> storeKeys;
 
-    public Endpoint(String path, String endpointDescription, String requestType, Parameter body, List<Parameter> queryParameters, List<Parameter> pathParameters, List<Parameter> headerVariables, String methodName, Class<?> returnType, Type genericReturnType, String returnDescription) {
+    public Endpoint(String path, String endpointDescription, String requestType, Parameter body, List<Parameter> queryParameters, List<Parameter> pathParameters, List<Parameter> headerVariables, String methodName, Class<?> returnType, Type genericReturnType, String returnDescription, List<String> storeKeys) {
         this.path = path;
         this.endpointDescription = endpointDescription;
         this.genericReturnType = genericReturnType;
@@ -29,6 +30,7 @@ public class Endpoint {
         this.requestType = requestType;
         this.returnType = returnType;
         this.returnDescription = returnDescription;
+        this.storeKeys = storeKeys;
     }
 
     public Type getGenericReturnType() {
@@ -111,4 +113,15 @@ public class Endpoint {
         this.body = body;
     }
 
+    public void setGenericReturnType(Type genericReturnType) {
+        this.genericReturnType = genericReturnType;
+    }
+
+    public List<String> getStoreKeys() {
+        return storeKeys;
+    }
+
+    public void setStoreKeys(List<String> storeKeys) {
+        this.storeKeys = storeKeys;
+    }
 }

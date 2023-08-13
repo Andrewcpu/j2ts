@@ -49,6 +49,7 @@ public class APIBuilder {
 	}
 
 	public static String convertEndpointToFunction(Endpoint endpoint, Set<Class<?>> types) {
+		String returnType = getTypeString(endpoint.getReturnType(), endpoint.getGenericReturnType(), types);
 		StringBuilder stringBuilder = new StringBuilder();
 		String header = getFunctionHeaderDeclaration(endpoint, types);
 		stringBuilder.append(getFunctionComment(endpoint, types));
@@ -59,7 +60,23 @@ public class APIBuilder {
 		if (endpoint.getPathParameters().size() != 0) {
 			quoteChar = "`";
 		}
-		String req = "return request.%s(" + quoteChar + "%s" + quoteChar + "%s).then((result: any) => result.data);";
+		List<String> storeKeys = endpoint.getStoreKeys();
+		//
+		// Generate the logic to store fields in localStorage
+		StringBuilder storeLogic = new StringBuilder();
+		storeLogic.append(".then((result: " + returnType + ") => {\n");
+		storeKeys.forEach(key -> storeLogic.append(getSpacing(3) + "localStorage.setItem(\"" + key + "\", result." + key + ");\n"));
+		storeLogic.append(getSpacing(3) + "return result;\n" + getSpacing(2) + "})");
+
+
+		String req = "return request.%s(" + quoteChar + "%s" + quoteChar + "%s)"
+				+ ".then((result: any) => result.data)";
+		if (storeKeys.size() > 0) {
+			System.out.println("??!");
+			req += storeLogic.toString() + ";";
+		} else {
+			req += ";";
+		}
 		List<String> params = new ArrayList<>();
 		if (endpoint.getBody() != null) {
 			params.add(getParameterName(endpoint.getBody()));
@@ -89,7 +106,8 @@ public class APIBuilder {
 						.map(parameter -> {
 							StoredKey storedKeyAnnotation = parameter.getAnnotation(StoredKey.class);
 							if (storedKeyAnnotation != null) {
-								String keyName = storedKeyAnnotation.value().isEmpty() ? ParameterUtils.getParameterName(parameter) : storedKeyAnnotation.value();;
+								String keyName = storedKeyAnnotation.value().isEmpty() ? ParameterUtils.getParameterName(parameter) : storedKeyAnnotation.value();
+								;
 								return keyName + ": localStorage.getItem(\"" + keyName + "\")";
 							} else {
 								return ParameterUtils.getParameterName(parameter);
@@ -129,7 +147,7 @@ public class APIBuilder {
 		}
 
 
-		String formattedReq = req.formatted(endpoint.getRequestType(), endPointPath, params.size() != 0 ? ", " + String.join(", ", params) : "");
+		String formattedReq = req.formatted(endpoint.getRequestType(), endPointPath, params.size() != 0 ? ", " + String.join(", ", params) : "", returnType);
 		stringBuilder.append(formattedReq);
 		stringBuilder.append("\n}");
 		return stringBuilder.toString();

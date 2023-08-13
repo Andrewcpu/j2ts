@@ -16,7 +16,10 @@ export function getUserById(userId: string, q: string): Promise<api.IUser> {
       params: {
         q
       }
-    }).then((result: any) => result.data);
+    }).then((result: any) => result.data).then((result: api.IUser) => {
+      localStorage.setItem("userId", result.userId);
+      return result;
+    });
 }
 
 /**
