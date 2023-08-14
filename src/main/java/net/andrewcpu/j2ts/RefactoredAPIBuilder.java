@@ -133,7 +133,7 @@ public class RefactoredAPIBuilder {
 		}
 
 		if (hasHeaderParameters) {
-			if (hasQueryParameters) {
+			if (hasQueryParameters && !endpoint.isMultipart()) {
 				reqParams.append(",\n").append(getSpacing(3));
 			}
 			reqParams.append("headers: {\n")
