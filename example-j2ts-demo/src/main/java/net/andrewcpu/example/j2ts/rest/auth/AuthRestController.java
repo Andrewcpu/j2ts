@@ -6,6 +6,7 @@ import net.andrewcpu.j2ts.annotations.API;
 import net.andrewcpu.j2ts.annotations.StoreReturnKeys;
 import net.andrewcpu.j2ts.annotations.StoredKey;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 public class AuthRestController {
@@ -25,6 +26,12 @@ public class AuthRestController {
 	                       @StoredKey
 	                       @RequestHeader("token")
 	                       String token) {
+		return null;
+	}
+
+	@API(description = "Multipart form file test", returnValue = "XYX", isMultipart = true)
+	@PostMapping("/upload")
+	public Object testUpload(@RequestParam("file") MultipartFile file) {
 		return null;
 	}
 }

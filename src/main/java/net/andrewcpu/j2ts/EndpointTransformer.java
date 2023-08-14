@@ -17,141 +17,145 @@ import static net.andrewcpu.j2ts.utils.ParameterUtils.getTypeString;
 public class EndpointTransformer {
 
 
-    public static Endpoint parseMethod(Method method) {
-        Parameter[] parameters = method.getParameters();
-        List<Parameter> pathVariables = Arrays.stream(parameters)
-                .filter(f -> f.isAnnotationPresent(PathVariable.class))
-                .toList();
-        List<Parameter> headerVariables = Arrays.stream(parameters)
-                .filter(f -> f.isAnnotationPresent(RequestHeader.class))
-                .toList(); // Identify header parameters
-        List<Parameter> queryVariables = Arrays.stream(parameters)
-                .filter(f -> f.isAnnotationPresent(RequestParam.class))
-                .toList();
-        List<Parameter> nonTagged = Arrays.stream(parameters)
-                .collect(Collectors.toList());
-        System.out.println("Found store keys? " + method.isAnnotationPresent(StoreReturnKeys.class));
-        List<String> storeKeys = method.isAnnotationPresent(StoreReturnKeys.class)
-                ? Arrays.asList(method.getAnnotation(StoreReturnKeys.class).value())
-                : new ArrayList<>();
+	public static Endpoint parseMethod(Method method) {
+		Parameter[] parameters = method.getParameters();
+		List<Parameter> pathVariables = Arrays.stream(parameters)
+				.filter(f -> f.isAnnotationPresent(PathVariable.class))
+				.toList();
+		List<Parameter> headerVariables = Arrays.stream(parameters)
+				.filter(f -> f.isAnnotationPresent(RequestHeader.class))
+				.toList(); // Identify header parameters
+		List<Parameter> queryVariables = Arrays.stream(parameters)
+				.filter(f -> f.isAnnotationPresent(RequestParam.class))
+				.toList();
+		List<Parameter> nonTagged = Arrays.stream(parameters)
+				.collect(Collectors.toList());
 
-        nonTagged.removeAll(pathVariables);
-        nonTagged.removeAll(queryVariables);
-        nonTagged.removeAll(headerVariables);
+		System.out.println("Found store keys? " + method.isAnnotationPresent(StoreReturnKeys.class));
+		List<String> storeKeys = method.isAnnotationPresent(StoreReturnKeys.class)
+				? Arrays.asList(method.getAnnotation(StoreReturnKeys.class).value())
+				: new ArrayList<>();
 
-        String methodName = method.getName();
-        String requestType = getRequestType(method);
-        Parameter body = null;
-        if(nonTagged.size() != 0) {
-            body = nonTagged.get(0);
-        }
-        String endpoint = getRequestPath(method);
-        API apiAnnotation = method.getAnnotation(API.class);
-        return new Endpoint(endpoint,
-                apiAnnotation.description(),
-                requestType,
-                body,
-                queryVariables,
-                pathVariables,
-                headerVariables,
-                methodName,
-                method.getReturnType(),
-                method.getGenericReturnType(),
-                apiAnnotation.returnValue(),
-                storeKeys
-                );
-    }
+		nonTagged.removeAll(pathVariables);
+		nonTagged.removeAll(queryVariables);
+		nonTagged.removeAll(headerVariables);
 
-    public static String getRequestPath(Method method) {
-        if (method.isAnnotationPresent(API.class)) {
-            if (method.isAnnotationPresent(GetMapping.class)) {
-                GetMapping getMapping = method.getAnnotation(GetMapping.class);
-                return String.join(", ", getMapping.value());
-            } else if (method.isAnnotationPresent(PostMapping.class)) {
-                PostMapping postMapping = method.getAnnotation(PostMapping.class);
-                return String.join(", ", postMapping.value());
-            } else if (method.isAnnotationPresent(PutMapping.class)) {
-                PutMapping putMapping = method.getAnnotation(PutMapping.class);
-                return String.join(", ", putMapping.value());
-            } else if (method.isAnnotationPresent(DeleteMapping.class)) {
-                DeleteMapping deleteMapping = method.getAnnotation(DeleteMapping.class);
-                return String.join(", ", deleteMapping.value());
-            } else if (method.isAnnotationPresent(PatchMapping.class)) {
-                PatchMapping patchMapping = method.getAnnotation(PatchMapping.class);
-                return String.join(", ", patchMapping.value());
-            }
-        }
-        return null;
-    }
-    public static String getRequestType(Method method) {
-        String requestType = "GET";
-        if (method.isAnnotationPresent(GetMapping.class)) {
-            requestType = "GET";
-        } else if (method.isAnnotationPresent(PostMapping.class)) {
-            requestType = "POST";
-        } else if (method.isAnnotationPresent(PutMapping.class)) {
-            requestType = "PUT";
-        } else if (method.isAnnotationPresent(DeleteMapping.class)) {
-            requestType = "DELETE";
-        } else if (method.isAnnotationPresent(PatchMapping.class)) {
-            requestType = "PATCH";
-        }
-        return requestType.toLowerCase();
-    }
+		String methodName = method.getName();
+		String requestType = getRequestType(method);
+		Parameter body = null;
+		if (nonTagged.size() != 0) {
+			body = nonTagged.get(0);
+		}
+		String endpoint = getRequestPath(method);
+		API apiAnnotation = method.getAnnotation(API.class);
+		return new Endpoint(endpoint,
+				apiAnnotation.description(),
+				requestType,
+				body,
+				queryVariables,
+				pathVariables,
+				headerVariables,
+				methodName,
+				method.getReturnType(),
+				method.getGenericReturnType(),
+				apiAnnotation.returnValue(),
+				storeKeys,
+				apiAnnotation.isMultipart(),
+				apiAnnotation.isMultipart() ? queryVariables : new ArrayList<>()
+		);
+	}
 
-    public static String getFunctionComment(Endpoint endpoint, Set<Class<?>> types) {
-        /**
-         * Adds two numbers together.
-         *
-         * @param {number} num1 - The first number.
-         * @param {number} num2 - The second number.
-         * @returns {number} The sum of num1 and num2.
-         *
-         */
+	public static String getRequestPath(Method method) {
+		if (method.isAnnotationPresent(API.class)) {
+			if (method.isAnnotationPresent(GetMapping.class)) {
+				GetMapping getMapping = method.getAnnotation(GetMapping.class);
+				return String.join(", ", getMapping.value());
+			} else if (method.isAnnotationPresent(PostMapping.class)) {
+				PostMapping postMapping = method.getAnnotation(PostMapping.class);
+				return String.join(", ", postMapping.value());
+			} else if (method.isAnnotationPresent(PutMapping.class)) {
+				PutMapping putMapping = method.getAnnotation(PutMapping.class);
+				return String.join(", ", putMapping.value());
+			} else if (method.isAnnotationPresent(DeleteMapping.class)) {
+				DeleteMapping deleteMapping = method.getAnnotation(DeleteMapping.class);
+				return String.join(", ", deleteMapping.value());
+			} else if (method.isAnnotationPresent(PatchMapping.class)) {
+				PatchMapping patchMapping = method.getAnnotation(PatchMapping.class);
+				return String.join(", ", patchMapping.value());
+			}
+		}
+		return null;
+	}
 
-        //" * @param {number} num1 - The first number.\n"
-        List<Parameter> allParams = new ArrayList<>();
-        allParams.addAll(endpoint.getPathParameters());
-        allParams.addAll(endpoint.getQueryParameters());
-        allParams.addAll(endpoint.getHeaderParameters());
-        allParams.add(endpoint.getBody());
+	public static String getRequestType(Method method) {
+		String requestType = "GET";
+		if (method.isAnnotationPresent(GetMapping.class)) {
+			requestType = "GET";
+		} else if (method.isAnnotationPresent(PostMapping.class)) {
+			requestType = "POST";
+		} else if (method.isAnnotationPresent(PutMapping.class)) {
+			requestType = "PUT";
+		} else if (method.isAnnotationPresent(DeleteMapping.class)) {
+			requestType = "DELETE";
+		} else if (method.isAnnotationPresent(PatchMapping.class)) {
+			requestType = "PATCH";
+		}
+		return requestType.toLowerCase();
+	}
 
-        String paramComments = allParams.stream().filter(Objects::nonNull).map(param -> {
-            String description = "";
-            if(param.isAnnotationPresent(ParamDescription.class)){
-                ParamDescription descriptParam = param.getAnnotation(ParamDescription.class);
-                description = descriptParam.value();
-            }
-            String type = "";
-            type = getTypeString(param, endpoint.getGenericReturnType(), types);
-            return " * @param {%s} %s%s".formatted(type, getNullableParameterName(param, types), description.length() != 0 ? " - " + description : "");
-        }).collect(Collectors.joining("\n"));
+	public static String getFunctionComment(Endpoint endpoint, Set<Class<?>> types) {
+		/**
+		 * Adds two numbers together.
+		 *
+		 * @param {number} num1 - The first number.
+		 * @param {number} num2 - The second number.
+		 * @returns {number} The sum of num1 and num2.
+		 *
+		 */
 
-        String format = "/**\n" +
-                "%s" +
-                paramComments + "\n" +
-                " * @returns {%s} %s\n" +
-                " */";
-        return format.formatted(endpoint.getEndpointDescription().length() != 0 ? " * " + endpoint.getEndpointDescription() + "\n * \n" : "", getTypeString(endpoint.getReturnType(), endpoint.getGenericReturnType(), types), endpoint.getReturnDescription() );
-    }
+		//" * @param {number} num1 - The first number.\n"
+		List<Parameter> allParams = new ArrayList<>();
+		allParams.addAll(endpoint.getPathParameters());
+		allParams.addAll(endpoint.getQueryParameters());
+		allParams.addAll(endpoint.getHeaderParameters());
+		allParams.add(endpoint.getBody());
 
-    public static String getFunctionParameterString(Endpoint endpoint, Set<Class<?>> types) {
-        List<String> p = new ArrayList<>();
-        for(Parameter parameter : endpoint.getPathParameters()) {
-            p.add(getNullableParameterName(parameter, types) + ": " + getTypeString(parameter, endpoint.getGenericReturnType(), types));
-        }
-        for(Parameter parameter : endpoint.getQueryParameters()) {
-            p.add(getNullableParameterName(parameter, types) + ": " + getTypeString(parameter, endpoint.getGenericReturnType(), types));
-        }
-        for(Parameter parameter : endpoint.getHeaderParameters()) {
-            if(!parameter.isAnnotationPresent(StoredKey.class)){
-                p.add(getNullableParameterName(parameter, types) + ": " + getTypeString(parameter, endpoint.getGenericReturnType(), types));
-            }
-        }
-        if(endpoint.getBody() != null) {
-            p.add(getNullableParameterName(endpoint.getBody(), types) + ": " + getTypeString(endpoint.getBody(), endpoint.getGenericReturnType(), types));
-        }
-        return String.join(", ", p);
-    }
+		String paramComments = allParams.stream().filter(Objects::nonNull).map(param -> {
+			String description = "";
+			if (param.isAnnotationPresent(ParamDescription.class)) {
+				ParamDescription descriptParam = param.getAnnotation(ParamDescription.class);
+				description = descriptParam.value();
+			}
+			String type = "";
+			type = getTypeString(param, endpoint.getGenericReturnType(), types);
+			return " * @param {%s} %s%s".formatted(type, getNullableParameterName(param, types), description.length() != 0 ? " - " + description : "");
+		}).collect(Collectors.joining("\n"));
+
+		String format = "/**\n" +
+				"%s" +
+				paramComments + "\n" +
+				" * @returns {%s} %s\n" +
+				" */";
+		return format.formatted(endpoint.getEndpointDescription().length() != 0 ? " * " + endpoint.getEndpointDescription() + "\n * \n" : "", getTypeString(endpoint.getReturnType(), endpoint.getGenericReturnType(), types), endpoint.getReturnDescription());
+	}
+
+	public static String getFunctionParameterString(Endpoint endpoint, Set<Class<?>> types) {
+		List<String> p = new ArrayList<>();
+		for (Parameter parameter : endpoint.getPathParameters()) {
+			p.add(getNullableParameterName(parameter, types) + ": " + getTypeString(parameter, endpoint.getGenericReturnType(), types));
+		}
+		for (Parameter parameter : endpoint.getQueryParameters()) {
+			p.add(getNullableParameterName(parameter, types) + ": " + getTypeString(parameter, endpoint.getGenericReturnType(), types));
+		}
+		for (Parameter parameter : endpoint.getHeaderParameters()) {
+			if (!parameter.isAnnotationPresent(StoredKey.class)) {
+				p.add(getNullableParameterName(parameter, types) + ": " + getTypeString(parameter, endpoint.getGenericReturnType(), types));
+			}
+		}
+		if (endpoint.getBody() != null) {
+			p.add(getNullableParameterName(endpoint.getBody(), types) + ": " + getTypeString(endpoint.getBody(), endpoint.getGenericReturnType(), types));
+		}
+		return String.join(", ", p);
+	}
 
 }

@@ -5,6 +5,7 @@ import net.andrewcpu.j2ts.annotations.OptionalField;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
@@ -56,6 +57,8 @@ public class ParameterUtils {
             value = "string";
         } else if (componentType == Boolean.class || componentType == boolean.class) {
             value = "boolean";
+        } else if(componentType == MultipartFile.class) {
+            value = "File";
         } else if (componentType == void.class) {
             value = "void";
         } else {

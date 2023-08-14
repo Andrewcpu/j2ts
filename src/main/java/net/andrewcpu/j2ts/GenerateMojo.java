@@ -25,6 +25,7 @@ import java.util.List;
 
 import static net.andrewcpu.j2ts.APIBuilder.generateAPI;
 
+
 @Mojo(name = "scan", requiresDependencyResolution= ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class GenerateMojo extends AbstractMojo {
 

@@ -25,7 +25,7 @@
             <plugin>
                 <groupId>net.andrewcpu</groupId>
                 <artifactId>j2ts</artifactId>
-                <version>1.91-SNAPSHOT</version>
+                <version>1.92-SNAPSHOT</version>
                 <inherited>true</inherited>
                 <executions>
                     <execution>
@@ -40,14 +40,6 @@
                     <typePrefix>I</typePrefix>
                     <moduleName>api</moduleName>
                     <proxyPath>api</proxyPath>
-                    <EndpointDeclarations>
-                        <authenticatedRoutes>
-                            <AuthenticatedRoute>
-                                <packageName>net.andrewcpu.example.j2ts.rest.auth</packageName>
-                                <headerKey>token</headerKey>
-                            </AuthenticatedRoute>
-                        </authenticatedRoutes>
-                    </EndpointDeclarations>
                 </configuration>
             </plugin>
         </plugins>
@@ -103,12 +95,7 @@
         <dependency>
             <groupId>net.andrewcpu</groupId>
             <artifactId>j2ts</artifactId>
-            <version>1.91-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>net.andrewcpu</groupId>
-            <artifactId>j2ts</artifactId>
-            <version>1.91-SNAPSHOT</version>
+            <version>1.92-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

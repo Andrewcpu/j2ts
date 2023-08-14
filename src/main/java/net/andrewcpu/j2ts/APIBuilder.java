@@ -15,10 +15,8 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.sql.Ref;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static net.andrewcpu.j2ts.EndpointTransformer.getFunctionComment;
@@ -32,7 +30,7 @@ import static net.andrewcpu.j2ts.utils.StringUtils.toKebabCase;
 
 public class APIBuilder {
 	public static String buildAPI(List<Endpoint> endpoints, Set<Class<?>> classes) {
-		String functions = endpoints.stream().map(i -> convertEndpointToFunction(i, classes)).collect(Collectors.joining("\n\n"));
+		String functions = endpoints.stream().map(i -> RefactoredAPIBuilder.convertEndpointToFunction(i, classes)).collect(Collectors.joining("\n\n"));
 
 		String output = "/* tslint:disable */\n" +
 				"/* eslint-disable */\nimport * as " + MODEL_IMPORT_NAME + " from '../types'\nconst request = require('axios');\nconst emptyString = \"\";\n\n";
@@ -40,116 +38,110 @@ public class APIBuilder {
 		return output;
 	}
 
-	public static String getFunctionHeaderDeclaration(Endpoint endpoint, Set<Class<?>> types) {
-		String format = "export function %s(%s): Promise<%s> {";
-		String name = endpoint.getMethodName();
-		String params = getFunctionParameterString(endpoint, types);
-		String returnType = getTypeString(endpoint.getReturnType(), endpoint.getGenericReturnType(), types);
-		return format.formatted(name, params, returnType);
-	}
-
-	public static String convertEndpointToFunction(Endpoint endpoint, Set<Class<?>> types) {
-		String returnType = getTypeString(endpoint.getReturnType(), endpoint.getGenericReturnType(), types);
-		StringBuilder stringBuilder = new StringBuilder();
-		String header = getFunctionHeaderDeclaration(endpoint, types);
-		stringBuilder.append(getFunctionComment(endpoint, types));
-		stringBuilder.append("\n");
-		stringBuilder.append(header);
-		stringBuilder.append("\n" + getSpacing(2));
-		String quoteChar = "\"";
-		if (endpoint.getPathParameters().size() != 0) {
-			quoteChar = "`";
-		}
-		List<String> storeKeys = endpoint.getStoreKeys();
-		//
-		// Generate the logic to store fields in localStorage
-		StringBuilder storeLogic = new StringBuilder();
-		storeLogic.append("\n" + getSpacing(3) + ".then((result: " + returnType + ") => {\n");
-		storeKeys.forEach(key -> storeLogic.append(getSpacing(4) + "localStorage.setItem(\"" + key + "\", result." + key + " ?? emptyString);\n"));
-		storeLogic.append(getSpacing(4) + "return result;\n" + getSpacing(3) + "})");
 
 
-		String req = "return request.%s(" + quoteChar + "%s" + quoteChar + "%s)"
-				+ ".then((result: any) => result.data as " + returnType + ")";
-		if (storeKeys.size() > 0) {
-			req += storeLogic.toString() + ";";
-		} else {
-			req += ";";
-		}
-		List<String> params = new ArrayList<>();
-		if (endpoint.getBody() != null) {
-			params.add(getParameterName(endpoint.getBody()));
-		}
-		if (endpoint.getQueryParameters().size() != 0 || endpoint.getHeaderParameters().size() != 0) {
-			StringBuilder reqParams = new StringBuilder("{\n" + getSpacing(3));
-			boolean hasQueryParameters = endpoint.getQueryParameters().size() != 0;
-			boolean hasHeaderParameters = endpoint.getHeaderParameters().size() != 0;
-			if (hasQueryParameters) {
-				reqParams.append("params: {\n"
-						+ getSpacing(4)
-						+ endpoint.getQueryParameters()
-						.stream()
-						.map(ParameterUtils::getParameterName)
-						.collect(Collectors.joining(", "))
-						+ "\n"
-						+ getSpacing(3) + "}");
-			}
-			if (hasHeaderParameters) {
-				if (hasQueryParameters) {
-					reqParams.append(",\n" + getSpacing(3)); // Add a comma if there are query params
-				}
-				reqParams.append("headers: {\n"
-						+ getSpacing(4)
-						+ endpoint.getHeaderParameters()
-						.stream()
-						.map(parameter -> {
-							StoredKey storedKeyAnnotation = parameter.getAnnotation(StoredKey.class);
-							if (storedKeyAnnotation != null) {
-								String keyName = storedKeyAnnotation.value().isEmpty() ? ParameterUtils.getParameterName(parameter) : storedKeyAnnotation.value();
-								return keyName + ": localStorage.getItem(\"" + keyName + "\")";
-							} else {
-								return ParameterUtils.getParameterName(parameter);
-							}
-						})
-						.collect(Collectors.joining(", "))
-						+ "\n"
-						+ getSpacing(3) + "}");
-			}
-			reqParams.append("\n" + getSpacing(2) + "}");
-			params.add(reqParams.toString());
-		}
-
-		String path = endpoint.getPath();
-		if (endpoint.getPathParameters().size() != 0) {
-			for (Parameter parameter : endpoint.getPathParameters()) {
-				String name = getParameterName(parameter);
-				path = path.replaceAll("\\{" + name + "}", "\\$\\{" + name + "}");
-			}
-		}
-
-		String endPointPath = "/";
-		if (!PROXY_URL_PREFIX.isEmpty()) {
-			endPointPath += PROXY_URL_PREFIX.trim();
-			if (endPointPath.endsWith("/")) {
-				if (path.startsWith("/")) {
-					endPointPath = endPointPath.substring(0, endPointPath.length() - 1);
-				}
-			} else {
-				if (!path.startsWith("/")) {
-					endPointPath += "/";
-				}
-			}
-			endPointPath += path;
-		} else {
-			endPointPath = path;
-		}
-
-
-		String formattedReq = req.formatted(endpoint.getRequestType(), endPointPath, params.size() != 0 ? ", " + String.join(", ", params) : "", returnType);
-		stringBuilder.append(formattedReq);
-		stringBuilder.append("\n}");
-		return stringBuilder.toString();
-	}
+//	public static String convertEndpointToFunction(Endpoint endpoint, Set<Class<?>> types) {
+//		String returnType = getTypeString(endpoint.getReturnType(), endpoint.getGenericReturnType(), types);
+//		StringBuilder stringBuilder = new StringBuilder();
+//		String header = getFunctionHeaderDeclaration(endpoint, types);
+//		stringBuilder.append(getFunctionComment(endpoint, types));
+//		stringBuilder.append("\n");
+//		stringBuilder.append(header);
+//		stringBuilder.append("\n" + getSpacing(2));
+//		String quoteChar = "\"";
+//		if (endpoint.getPathParameters().size() != 0) {
+//			quoteChar = "`";
+//		}
+//		List<String> storeKeys = endpoint.getStoreKeys();
+//		//
+//		// Generate the logic to store fields in localStorage
+//		StringBuilder storeLogic = new StringBuilder();
+//		storeLogic.append("\n" + getSpacing(3) + ".then((result: " + returnType + ") => {\n");
+//		storeKeys.forEach(key -> storeLogic.append(getSpacing(4) + "localStorage.setItem(\"" + key + "\", result." + key + " ?? emptyString);\n"));
+//		storeLogic.append(getSpacing(4) + "return result;\n" + getSpacing(3) + "})");
+//
+//
+//		String req = "return request.%s(" + quoteChar + "%s" + quoteChar + "%s)"
+//				+ ".then((result: any) => result.data as " + returnType + ")";
+//		if (storeKeys.size() > 0) {
+//			req += storeLogic.toString() + ";";
+//		} else {
+//			req += ";";
+//		}
+//		List<String> params = new ArrayList<>();
+//		if (endpoint.getBody() != null) {
+//			params.add(getParameterName(endpoint.getBody()));
+//		}
+//		if (endpoint.getQueryParameters().size() != 0 || endpoint.getHeaderParameters().size() != 0) {
+//			StringBuilder reqParams = new StringBuilder("{\n" + getSpacing(3));
+//			boolean hasQueryParameters = endpoint.getQueryParameters().size() != 0;
+//			boolean hasHeaderParameters = endpoint.getHeaderParameters().size() != 0;
+//			if (hasQueryParameters) {
+//				reqParams.append("params: {\n"
+//						+ getSpacing(4)
+//						+ endpoint.getQueryParameters()
+//						.stream()
+//						.map(ParameterUtils::getParameterName)
+//						.collect(Collectors.joining(", "))
+//						+ "\n"
+//						+ getSpacing(3) + "}");
+//			}
+//			if (hasHeaderParameters) {
+//				if (hasQueryParameters) {
+//					reqParams.append(",\n" + getSpacing(3)); // Add a comma if there are query params
+//				}
+//				reqParams.append("headers: {\n"
+//						+ getSpacing(4)
+//						+ endpoint.getHeaderParameters()
+//						.stream()
+//						.map(parameter -> {
+//							StoredKey storedKeyAnnotation = parameter.getAnnotation(StoredKey.class);
+//							if (storedKeyAnnotation != null) {
+//								String keyName = storedKeyAnnotation.value().isEmpty() ? ParameterUtils.getParameterName(parameter) : storedKeyAnnotation.value();
+//								return keyName + ": localStorage.getItem(\"" + keyName + "\")";
+//							} else {
+//								return ParameterUtils.getParameterName(parameter);
+//							}
+//						})
+//						.collect(Collectors.joining(", "))
+//						+ "\n"
+//						+ getSpacing(3) + "}");
+//			}
+//			reqParams.append("\n" + getSpacing(2) + "}");
+//			params.add(reqParams.toString());
+//		}
+//
+//		String path = endpoint.getPath();
+//		if (endpoint.getPathParameters().size() != 0) {
+//			for (Parameter parameter : endpoint.getPathParameters()) {
+//				String name = getParameterName(parameter);
+//				path = path.replaceAll("\\{" + name + "}", "\\$\\{" + name + "}");
+//			}
+//		}
+//
+//		String endPointPath = "/";
+//		if (!PROXY_URL_PREFIX.isEmpty()) {
+//			endPointPath += PROXY_URL_PREFIX.trim();
+//			if (endPointPath.endsWith("/")) {
+//				if (path.startsWith("/")) {
+//					endPointPath = endPointPath.substring(0, endPointPath.length() - 1);
+//				}
+//			} else {
+//				if (!path.startsWith("/")) {
+//					endPointPath += "/";
+//				}
+//			}
+//			endPointPath += path;
+//		} else {
+//			endPointPath = path;
+//		}
+//
+//
+//		String formattedReq = req.formatted(endpoint.getRequestType(), endPointPath, params.size() != 0 ? ", " + String.join(", ", params) : "", returnType);
+//		stringBuilder.append(formattedReq);
+//		stringBuilder.append("\n}");
+//		return stringBuilder.toString();
+//	}
 
 	public static void generateAPI(Reflections reflections, ClassLoader classLoader, String packageRoot, File directory, EndpointDeclarations endpointDeclarations) throws IOException {
 		File outputDirectory = new File(directory, "ts-api");
@@ -183,6 +175,7 @@ public class APIBuilder {
 		for (Class<?> clazz : restClasses) {
 			System.out.println(clazz.getSimpleName() + "--!");
 			List<Endpoint> endpoints = scanForApiAnnotations(clazz);
+			endpoints.sort(Comparator.comparing(Endpoint::getMethodName));
 			String api = buildAPI(endpoints, classes);
 			String fileName = toKebabCase(clazz.getSimpleName()) + "-api.ts";
 			File file = new File(new File(outputDirectory, "controllers"), fileName);
@@ -201,7 +194,6 @@ public class APIBuilder {
 		}
 
 		writeApiToFile(new File(outputDirectory, "api.ts"), stringBuilder.toString());
-		//export * from './controllers/fileName
 	}
 
 	public static Settings setupSettings() {

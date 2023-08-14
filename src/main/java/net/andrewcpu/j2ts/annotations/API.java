@@ -10,4 +10,6 @@ import java.lang.annotation.Target;
 public @interface API {
     String description() default ""; // Add this line.
     String returnValue() default "";
+
+    boolean isMultipart() default false;
 }

@@ -17,8 +17,23 @@ public class Endpoint {
     private Type genericReturnType;
     private final String returnDescription;
     private List<String> storeKeys;
+    private boolean isMultipart;
+    private List<Parameter> multipartParameters;
 
-    public Endpoint(String path, String endpointDescription, String requestType, Parameter body, List<Parameter> queryParameters, List<Parameter> pathParameters, List<Parameter> headerVariables, String methodName, Class<?> returnType, Type genericReturnType, String returnDescription, List<String> storeKeys) {
+    public Endpoint(String path,
+                    String endpointDescription,
+                    String requestType,
+                    Parameter body,
+                    List<Parameter> queryParameters,
+                    List<Parameter> pathParameters,
+                    List<Parameter> headerVariables,
+                    String methodName,
+                    Class<?> returnType,
+                    Type genericReturnType,
+                    String returnDescription,
+                    List<String> storeKeys,
+                    boolean isMultipart,
+                    List<Parameter> multipartParameters) {
         this.path = path;
         this.endpointDescription = endpointDescription;
         this.genericReturnType = genericReturnType;
@@ -31,6 +46,16 @@ public class Endpoint {
         this.returnType = returnType;
         this.returnDescription = returnDescription;
         this.storeKeys = storeKeys;
+        this.isMultipart = isMultipart;
+        this.multipartParameters = multipartParameters;
+    }
+
+    public List<Parameter> getMultipartParameters() {
+        return multipartParameters;
+    }
+
+    public void setMultipartParameters(List<Parameter> multipartParameters) {
+        this.multipartParameters = multipartParameters;
     }
 
     public Type getGenericReturnType() {
@@ -123,5 +148,13 @@ public class Endpoint {
 
     public void setStoreKeys(List<String> storeKeys) {
         this.storeKeys = storeKeys;
+    }
+
+    public boolean isMultipart() {
+        return isMultipart;
+    }
+
+    public void setMultipart(boolean multipart) {
+        isMultipart = multipart;
     }
 }
