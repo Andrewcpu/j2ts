@@ -51,7 +51,7 @@ public class RefactoredAPIBuilder {
 				String paramName = getParameterName(parameter);
 				formDataLogic.append(getSpacing(2)).append("formData.append('").append(paramName).append("', ").append(paramName).append(");\n");
 			});
-			multipartLogic = formDataLogic.toString() + "\n";
+			multipartLogic = formDataLogic.toString() + "\n" + getSpacing(2);
 		}
 
 		String path = formatEndpointPath(endpoint);
@@ -67,7 +67,7 @@ public class RefactoredAPIBuilder {
 		} else {
 			req += ";";
 		}
-		return multipartLogic + getSpacing(2) + req.formatted(endpoint.getRequestType(), reqParams.trim().length() != 0 ? ", " + reqParams : "", returnType);
+		return multipartLogic + req.formatted(endpoint.getRequestType(), reqParams.trim().length() != 0 ? ", " + reqParams : "", returnType);
 	}
 
 	private static StringBuilder createLocalStorageLogic(Endpoint endpoint, String returnType) {
