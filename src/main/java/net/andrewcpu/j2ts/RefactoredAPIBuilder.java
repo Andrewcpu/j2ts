@@ -120,6 +120,10 @@ public class RefactoredAPIBuilder {
 			reqParams.append("data: formData");
 		}
 
+		if(endpoint.getBody() != null) {
+			reqParams.insert(0, getParameterName(endpoint.getBody()) + ", ");
+		}
+
 		if (hasQueryParameters && !endpoint.isMultipart()) {
 			if (endpoint.isMultipart()) {
 				reqParams.append(",\n").append(getSpacing(3));

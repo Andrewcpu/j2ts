@@ -13,7 +13,7 @@ const emptyString = "";
  * @returns {api.IUser} XYX
  */
 export function doPostTest(user: api.IUser): Promise<api.IUser> {
-        return request.post("/api/test", {
+        return request.post("/api/test", user, {
       headers: {
         token: localStorage.getItem("token")
       }

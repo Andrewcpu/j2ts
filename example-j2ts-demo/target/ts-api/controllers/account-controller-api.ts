@@ -43,7 +43,7 @@ export function getUsers(): Promise<api.IUser[]> {
  * @returns {api.IUser} The updated user model/
  */
 export function updateUser(user: api.IUser): Promise<api.IUser> {
-        return request.post("/api/user", {
+        return request.post("/api/user", user, {
       
     }).then((result: any) => result.data as api.IUser);
 }

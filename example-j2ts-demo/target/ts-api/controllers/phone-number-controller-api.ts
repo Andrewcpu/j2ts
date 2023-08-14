@@ -14,7 +14,7 @@ const emptyString = "";
  * @returns {string} 
  */
 export function getPhoneNumber(userId: string, type: api.IPhoneType, ssoToken: string): Promise<string> {
-        return request.get(`/api/phone/${userId}`, {
+        return request.get(`/api/phone/${userId}`, ssoToken, {
       params: {
         type
       }
