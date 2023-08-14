@@ -13,7 +13,7 @@ const emptyString = "";
  * @returns {api.IUser} The requested user model
  */
 export function getUserById(userId: string, q: string): Promise<api.IUser> {
-        return request.get(`/api/user/${userId}`, {
+    return request.get(`/api/user/${userId}`, {
       params: {
         q
       }
@@ -31,7 +31,7 @@ export function getUserById(userId: string, q: string): Promise<api.IUser> {
  * @returns {api.IUser[]} A list of users
  */
 export function getUsers(): Promise<api.IUser[]> {
-        return request.get("/api/users", {
+    return request.get("/api/users", {
       
     }).then((result: any) => result.data as api.IUser[]);
 }
@@ -43,7 +43,7 @@ export function getUsers(): Promise<api.IUser[]> {
  * @returns {api.IUser} The updated user model/
  */
 export function updateUser(user: api.IUser): Promise<api.IUser> {
-        return request.post("/api/user", user, {
+    return request.post("/api/user", user, {
       
     }).then((result: any) => result.data as api.IUser);
 }

@@ -116,18 +116,14 @@ public class RefactoredAPIBuilder {
 		boolean hasQueryParameters = endpoint.getQueryParameters().size() != 0;
 		boolean hasHeaderParameters = endpoint.getHeaderParameters().size() != 0;
 
-		if (endpoint.isMultipart()) {
-			reqParams.append("data: formData");
-		}
 
 		if(endpoint.getBody() != null) {
 			reqParams.insert(0, getParameterName(endpoint.getBody()) + ", ");
 		}
-
+		if(endpoint.isMultipart()) {
+			reqParams.insert(0, "formData, ");
+		}
 		if (hasQueryParameters && !endpoint.isMultipart()) {
-			if (endpoint.isMultipart()) {
-				reqParams.append(",\n").append(getSpacing(3));
-			}
 			reqParams.append("params: {\n")
 					.append(getSpacing(4))
 					.append(endpoint.getQueryParameters().stream().map(ParameterUtils::getParameterName).collect(Collectors.joining(", ")))
